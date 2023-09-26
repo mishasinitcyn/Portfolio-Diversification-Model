@@ -17,5 +17,5 @@ export class ApiService {
       .set('period', period);
 
     return this.http.get<any>(this.apiUrl, { params: params });
-}
+  }
 }

@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UcbBoxplotComponent } from './ucb-boxplot/ucb-boxplot.component';
 import { NgChartsModule } from 'ng2-charts';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { NgChartsModule } from 'ng2-charts';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    NgChartsModule  
+    NgChartsModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

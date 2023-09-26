@@ -9,9 +9,9 @@ DELTA = 0.05
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def get_stock_data(self, ticker, period): 
-        #tickerData = yf.Ticker(ticker)
-        #tickerDf = tickerData.history(period=period, interval='1d')
-        tickerDf = pd.read_csv('MSFT.csv', index_col=0, parse_dates=True)
+        tickerData = yf.Ticker(ticker)
+        tickerDf = tickerData.history(period=period, interval='1d')
+        #tickerDf = pd.read_csv('MSFT.csv', index_col=0, parse_dates=True)
         return tickerDf # Convert DataFrame to dictionary for JSON serialization
 
     def calculate_ucb(self, prices):
@@ -76,22 +76,27 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         query_components = parse_qs(urlparse(self.path).query)
-        ticker = query_components.get('ticker', ['MSFT'])[0]
+        ticker = query_components.get('ticker')[0]
         period = query_components.get('period', ['1d'])[0]
 
+        print('GET:', ticker, period)
         stock_data = self.get_stock_data(ticker, period)
         closing_prices = pd.Series(stock_data['Close'])
         print(closing_prices)
         print(DELTA)
         ucb_tuple = self.calculate_rl_ucb(closing_prices, DELTA)
 
+        response_data = {
+            'ucb_tuple': ucb_tuple,
+            'ticker': ticker
+        }
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET')
         self.send_header('Access-Control-Allow-Headers', 'content-type')
         self.end_headers()
-        self.wfile.write(json.dumps(ucb_tuple).encode('utf-8'))
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
 
 
 if __name__ == '__main__':
