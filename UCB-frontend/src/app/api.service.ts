@@ -16,6 +16,14 @@ export class ApiService {
       .set('ticker', ticker)
       .set('period', period);
 
-    return this.http.get<any>(this.apiUrl, { params: params });
+    return this.http.get<any>(`${this.apiUrl}/stock_data`, { params: params });
+  }
+
+  getForecastData(ticker: string, period: string): Observable<any> {
+    const params = new HttpParams()
+      .set('ticker', ticker)
+      .set('period', period);
+
+    return this.http.get<any>(`${this.apiUrl}/forecast`, { params: params });
   }
 }

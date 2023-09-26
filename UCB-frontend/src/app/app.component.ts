@@ -30,4 +30,14 @@ export class AppComponent {
     );
   }
 
+  getForecast(ticker: string, period: string){
+    this.apiService.getForecastData(ticker, period).subscribe(
+      (data: any) => {
+        this.UCBs = [...this.UCBs, data]
+      },
+      (error) => {
+        console.error("Error fetching stock data:", error);
+      }
+    );
+}
 }
