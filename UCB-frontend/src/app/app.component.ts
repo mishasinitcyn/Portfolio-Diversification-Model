@@ -11,6 +11,7 @@ export class AppComponent {
   title = 'UCB';
   UCBs: UCBObject[] = [];
   tickerInput = '';
+  periodInput = '1wk';
 
   constructor(private apiService: ApiService) { }
 

@@ -1,4 +1,5 @@
 <app-ucb-boxplot [data]="UCBs"></app-ucb-boxplot>
 
 <input [(ngModel)]='tickerInput'>
-<button (click)="getStock(tickerInput, '1wk')">Get Stock</button>
+<input [(ngModel)]='periodInput'>
+<button (click)="getStock(tickerInput, periodInput)">Get Stock</button>

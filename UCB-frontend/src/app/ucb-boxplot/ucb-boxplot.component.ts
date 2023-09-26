@@ -1,7 +1,10 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { UCBObject } from 'src/interfaces';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
+// Register the plugin
+Chart.register(annotationPlugin);
 @Component({
   selector: 'app-ucb-boxplot',
   templateUrl: './ucb-boxplot.component.html',
@@ -15,36 +18,45 @@ export class UcbBoxplotComponent implements OnInit, OnChanges {
     responsive: true,
     plugins: {
       annotation: {
-        annotations: this.createAnnotations()
+        // annotations: this.createAnnotations()
       }
     }
-  };
+  }; 
   
+  /*
   public createAnnotations(): any[] {
-    return this.data?.map(UCBObject => {
-      const mean = UCBObject.ucb_tuple[1]; // Extracting the mean from the tuple
+    return this.data.map((UCBObject, idx) => {
+      const mean = UCBObject.ucb_tuple[1];
+      const stdDev = Math.sqrt(UCBObject.ucb_tuple[2]); 
       return {
-        type: 'line',
-        mode: 'horizontal',
-        scaleID: 'y-axis-0',
-        value: mean,
-        borderColor: 'rgba(255,0,0,0.5)',
-        borderWidth: 2,
-        label: {
-          enabled: true,
-          content: `Mean: ${mean}`
-        }
+        type: 'box',
+        xScaleID: 'x-axis-0',
+        yScaleID: 'y-axis-0',
+        xMin: idx - 0.5,  // Assuming bars are 1 unit wide
+        xMax: idx + 0.5,
+        yMin: mean - stdDev,
+        yMax: mean + stdDev,
+        backgroundColor: 'rgba(0, 255, 0, 0.1)', 
+        borderColor: 'rgba(0, 255, 0, 0.5)',    
+        borderWidth: 1
       };
     });
   }
+  */
 
   ngOnInit(): void {
     this.updateChartData();
   }
 
-  ngOnChanges(): void {
-    this.updateChartData();
-    console.log(this.chartData)
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data'] && !changes['data'].isFirstChange()) {
+        this.updateChartData();
+        this.updateAnnotations();
+    }
+}
+
+  updateAnnotations(): void {
+    // this.chartOptions.plugins.annotation.annotations = this.createAnnotations();
   }
 
   private updateChartData(): void {
