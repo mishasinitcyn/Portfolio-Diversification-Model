@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
 
-  private apiUrl = 'http://localhost:5000';  // URL to the Python server
+  private apiUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) { }
 

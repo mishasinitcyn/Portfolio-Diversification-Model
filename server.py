@@ -16,7 +16,7 @@ np.random.seed(7)
 tf.random.set_seed(7)
 DELTA = 0.05
 
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
+def reshape_series(data, n_in=1, n_out=1, dropnan=True):
     n_vars = 1 if type(data) is list else data.shape[1]
     df = pd.DataFrame(data)
     cols, names = list(), list()
@@ -40,7 +40,7 @@ def forecast_closing_price(df):
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled = scaler.fit_transform(values)
 
-    reframed = series_to_supervised(scaled, 1, 1)
+    reframed = reshape_series(scaled, 1, 1)
     reframed.drop(reframed.columns[[6,7]], axis=1, inplace=True)
 
     # Split data
@@ -50,27 +50,27 @@ def forecast_closing_price(df):
     train_X, train_y = train[:, :-1], train[:, -1]
     test_X, test_y = test[:, :-1], test[:, -1]
 
-    # Reshape data to be 3D [samples, timesteps, features]
+    # Reshape data [samples, timesteps, features]
     train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
     test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
 
+    # Instantiate and train model
     model = Sequential()
     model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
     model.add(Dense(1))
     model.compile(loss='mae', optimizer='adam')
     model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
 
+    # Forecast
     yhat = model.predict(test_X)
     test_X_reshaped = test_X.reshape((test_X.shape[0], test_X.shape[2]))
 
-    # Extract the relevant columns ('High', 'Low', 'Volume')
+    # Extract ('High', 'Low', 'Volume')
     relevant_test_X = test_X_reshaped[:, 0:3]
-
-    # Combine these columns with the forecasted 'Close' prices (yhat)
     inv_yhat = np.column_stack((relevant_test_X, yhat))
-
     inv_yhat = scaler.inverse_transform(inv_yhat)
     predicted_close_prices = inv_yhat[:, -1]
+
     return predicted_close_prices
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -81,57 +81,26 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         #tickerDf = pd.read_csv('MSFT.csv', index_col=0, parse_dates=True)
         return tickerDf # Convert DataFrame to dictionary for JSON serialization
 
-    def calculate_ucb(self, prices):
-        # Calculate daily returns
+    def calculate_ucb_exploration_term(self, prices):
         daily_returns = prices.pct_change().dropna()
-        
-        # Calculate mean and variance of returns
         mean_return = daily_returns.mean()
         variance_return = daily_returns.var()
-        
-        # Number of observations
-        n = len(prices)
-        
-        # Calculate UCB
-        ucb = mean_return + np.sqrt((2 * np.log(n) / n) * variance_return)
-        return ucb
-
-    def calculate_ucb_tuned(self, prices):
-        # Calculate daily returns
-        daily_returns = prices.pct_change().dropna()
-        
-        # Calculate mean and variance of returns
-        mean_return = daily_returns.mean()
-        variance_return = daily_returns.var()
-        
-        # Total number of observations
         t = len(prices)
-
-        # Number of observations for this stock (same as t in this context)
         n = t
 
-        # Calculate the exploration term (inside the square root)
         exploration_term = min(1/4, variance_return + np.sqrt((2 * np.log(t) / n)))
-        
-        # Calculate UCB using the tuned formula
+
         ucb = mean_return + np.sqrt((np.log(t) / n) * exploration_term)
         
         return ucb
 
     def calculate_rl_ucb(self, prices, delta):
-        # Calculate daily returns
         daily_returns = prices.pct_change().dropna()
-        
-        # Calculate mean and variance of returns up to time t
         mean_return = daily_returns.mean()
         variance = daily_returns.var()
-
-        # Number of observations up to time t
         n = len(prices)
-        
-        # Calculate UCB using the RL formula with delta
+
         ucb = mean_return + np.sqrt((2 * np.log(1/delta) / n) * variance)
-        
         return ucb, mean_return, variance
 
     def do_OPTIONS(self):
@@ -196,7 +165,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response_data).encode('utf-8'))
 
         else:
-            # Handle unknown paths or return a 404 response
             self.send_response(404)
             self.end_headers()
 

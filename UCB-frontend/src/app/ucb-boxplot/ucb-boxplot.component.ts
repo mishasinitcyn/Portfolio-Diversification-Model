@@ -68,7 +68,6 @@ export class UcbBoxplotComponent implements OnInit, OnChanges {
     const [ucbScore, mean, variance] = tuple;
     const stdDev = Math.sqrt(variance);
 
-    // Calculate the box plot values
     return [
         mean - 2 * stdDev, // Q1
         mean - stdDev,     // Q2
