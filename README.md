@@ -18,13 +18,8 @@ This project aims to implement Reinforcement Learning algorithms for financial d
 ### Backend
 
 1. Clone the repository.
-2. In the root directory, create a virtual environment using `python -m venv venv`.
-3. On Windows:
-   1. Activate the virtual environment using `venv\Scripts\activate`.
-4. On Mac:
-   1. Activate the virtual environment using `source venv/bin/activate`.
-5. Install the required packages using `pip install -r requirements.txt`.
-6. Run the backend using `python server.py`.
+2. Install the required packages using `pip install -r requirements.txt`.
+3. Run the backend using `python server.py`.
 
 ### Frontend
 
