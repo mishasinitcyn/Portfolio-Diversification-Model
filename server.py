@@ -142,7 +142,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         exploration_term = min(1/4, variance_return + np.sqrt((2 * np.log(t) / n)))
 
         ucb = mean_return + np.sqrt((np.log(t) / n) * exploration_term)
-        
         return ucb
 
     def calculate_rl_ucb(self, prices, delta):
@@ -174,7 +173,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         query_components = parse_qs(parsed_url.query)
-        
         if path == '/stock_data':
             ticker = query_components.get('ticker')[0]
             period = query_components.get('period', ['1d'])[0]
@@ -205,10 +203,9 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             print('GET forecast:', ticker, period)
             stock_data = self.get_stock_data(ticker, period)
             closing_prices = pd.Series(stock_data['Close'])
-            forecast_data = forecast_closing_price(stock_data)  
+            forecast_data = forecast_closing_price(stock_data)
             forecast_series = pd.Series(forecast_data)
             closing_prices = closing_prices.append(forecast_series, ignore_index=True)
-
             ucb_tuple = self.calculate_rl_ucb(closing_prices, DELTA)
 
             response_data = {
