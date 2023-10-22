@@ -10,6 +10,11 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense
 import tensorflow as tf
 from keras import backend as K
+from flask import Flask
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
 
 print(K.backend())
 
