@@ -1,0 +1,33 @@
+name: Auto Format Python Code
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  autopep8:
+    name: Format Python Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
+
+    - name: Install dependencies
+      run: pip install autopep8
+
+    - name: Auto-format Python code
+      run: autopep8 --recursive --in-place .
+      
+    - name: Commit and push changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "<>"
+        git commit -am "Auto-format Python code"
+        git push
