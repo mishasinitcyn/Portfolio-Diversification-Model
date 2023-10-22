@@ -184,6 +184,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    httpd = HTTPServer(("localhost", 5000), SimpleHTTPRequestHandler)
-    print("Serving on port 5000")
+    httpd = HTTPServer(("localhost", 8080), SimpleHTTPRequestHandler)
+    print("Serving on port 8080")
     httpd.serve_forever()
