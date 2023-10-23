@@ -60,6 +60,8 @@ def preprocess_data(data_frame):
     scaled = scaler.fit_transform(values)
     reframed = reshape_series(scaled, 1, 1)
     reframed.drop(reframed.columns[[6, 7]], axis=1, inplace=True)
+    return reframed, scaler
+
 
 def split_data(reframed):
     """
@@ -72,6 +74,7 @@ def split_data(reframed):
     test_x, test_y = test[:, :-1], test[:, -1]
     return train_x, train_y, test_x, test_y
 
+
 def reshape_for_lstm(train_x, test_x):
     """
     Reshape the input data to the required shape for LSTM input.
@@ -79,6 +82,7 @@ def reshape_for_lstm(train_x, test_x):
     train_x = train_x.reshape((train_x.shape[0], 1, train_x.shape[1]))
     test_x = test_x.reshape((test_x.shape[0], 1, test_x.shape[1]))
     return train_x, test_x
+
 
 def build_and_train_model(train_x, train_y, test_x, test_y):
     """
@@ -99,6 +103,7 @@ def build_and_train_model(train_x, train_y, test_x, test_y):
     )
     return model
 
+
 def forecast_and_inverse_transform(test_x, model, scaler):
     """
     Uses the trained LSTM model to forecast and then inverse scales the predictions.
@@ -111,6 +116,7 @@ def forecast_and_inverse_transform(test_x, model, scaler):
     predicted_close_prices = inv_yhat[:, -1]
     return predicted_close_prices
 
+
 def forecast_closing_price(data_frame):
     """
     Forecast closing price using LSTM
@@ -119,13 +125,16 @@ def forecast_closing_price(data_frame):
     train_x, train_y, test_x, test_y = split_data(reframed)
     train_x, test_x = reshape_for_lstm(train_x, test_x)
     model = build_and_train_model(train_x, train_y, test_x, test_y)
-    predicted_close_prices = forecast_and_inverse_transform(test_x, model, scaler)
+    predicted_close_prices = forecast_and_inverse_transform(
+        test_x, model, scaler)
     return predicted_close_prices
+
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     """
     Simple HTTP request handler with CORS support and stock data retrieval
     """
+
     def get_stock_data(self, ticker, period):
         """
         Get stock data from Yahoo Finance API, return as dictionary
@@ -212,7 +221,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             closing_prices = pd.Series(stock_data['Close'])
             forecast_data = forecast_closing_price(stock_data)
             forecast_series = pd.Series(forecast_data)
-            closing_prices = closing_prices.append(forecast_series, ignore_index=True)
+            closing_prices = closing_prices.append(
+                forecast_series, ignore_index=True)
             ucb_tuple = self.calculate_rl_ucb(closing_prices, DELTA)
 
             response_data = {"ucb_tuple": ucb_tuple, "ticker": ticker}
