@@ -185,7 +185,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         )
         self.end_headers()
 
-    def do_get(self):
+    def do_GET(self): # pylint: disable=invalid-name
         """
         Respond to GET request with stock data and UCB
         """
