@@ -39,5 +39,9 @@ export class AppComponent {
         console.error("Error fetching stock data:", error);
       }
     );
-}
+  }
+
+  clearData(){
+    this.UCBs = [];
+  }
 }
