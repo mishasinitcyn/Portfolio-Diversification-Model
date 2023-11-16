@@ -221,8 +221,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             closing_prices = pd.Series(stock_data['Close'])
             forecast_data = forecast_closing_price(stock_data)
             forecast_series = pd.Series(forecast_data)
-            closing_prices = closing_prices.append(
-                forecast_series, ignore_index=True)
+            closing_prices = pd.concat([closing_prices, forecast_series]).reset_index(drop=True)
             ucb_tuple = self.calculate_rl_ucb(closing_prices, DELTA)
 
             response_data = {"ucb_tuple": ucb_tuple, "ticker": ticker}
